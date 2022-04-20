@@ -4,12 +4,10 @@ const msgerChat = get(".msger-chat");
 const msgerMyName = get(".msger-name");
 const msgerSendTo = get(".msger-sendto");
 const msgerSendToNickname = get(".msger-sendname");
-let restApiUrl = 'https://litchatrestapi.herokuapp.com/users'; //let litCeramicIntegration = new Integration('https://ceramic-clay.3boxlabs.com', 'polygon')
-
+let restApiUrl = 'https://litchatrestapi.herokuapp.com/users';
 let streamID = 'this should never work'; // test data
 
-let selectedWalletAddress = "none";
-const BOT_MSGS = ["Hi, how are you?", "Ohh... I can't understand what you trying to say. Sorry!", "I like to play games... But I don't know how to play!", "Sorry if my answers are not relevant. :))", "I feel sleepy! :("]; // Icons made by Freepik from www.flaticon.com
+let selectedWalletAddress = "none"; // Icons made by Freepik from www.flaticon.com
 
 let BOT_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
 let PERSON_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
@@ -56,7 +54,7 @@ const fetchPut = (data, id) => {
 
 const updateStreamID = resp => {
   streamID = resp;
-  console.log('$$$kl - you now have this as your streamID', streamID);
+  console.log('Message sending to REST API: ', streamID);
   selectedWalletAddress = window.ethereum.selectedAddress; //Obj of data to send in future like a dummyDb
 
   const sendToAddress = msgerSendTo.value;
@@ -78,12 +76,11 @@ function addMessageReceiver(message, fromName, restApiMsgId) {
   if (message === "FALSE") {
     console.log("updating message: ", message);
     message = "<MSG UNSENT>"; //signal that the sender undsent the original message by removing decryption permissions
-  }
+  } //const delay = message.split(" ").length * 100;
+  //setTimeout(() => {
 
-  const delay = message.split(" ").length * 100;
-  setTimeout(() => {
-    appendMessage(fromName, BOT_IMG, "left", message);
-  }, delay);
+
+  appendMessage(fromName, BOT_IMG, "left", message); //}, delay);
 }
 
 function addMessageSender(message, fromName, wasRead, restApiMsgId) {
@@ -97,9 +94,6 @@ function addMessageSender(message, fromName, wasRead, restApiMsgId) {
 }
 
 function updateChatData() {
-  //hacky for now, but what can you do in a week...
-  //clearMessages();
-  //location.reload();
   //GET request to get off-chain data for RX user
   fetch(` ${restApiUrl}`, {
     method: 'GET',
@@ -110,22 +104,21 @@ function updateChatData() {
   .then(data => {
     //console.log('$$$kl - GET to REST API:', data);
     //sort by msgID - this is slow but simple for demo
-    let sortedData = [];
-
-    while (sortedData.length < data.length) {
-      for (let i = 0; i < data.length; i++) {
-        if (data[i].id == sortedData.length + 1) {
-          sortedData.push(data[i]);
-          console.log("pushing id: ", data[i].id);
-          break;
-        }
-      }
-    }
-
-    data = sortedData; // @ts-ignore
+    // let sortedData = [];
+    // while(sortedData.length < data.length){
+    //   for(let i=0; i<data.length; i++){
+    //     if(data[i].id == sortedData.length+1){
+    //       sortedData.push(data[i]);
+    //       console.log("pushing id: ", data[i].id)
+    //       break;
+    //     }
+    //   }
+    // }
+    // data = sortedData;
+    // @ts-ignore
     //const test = document.getElementById('sendaddr').value;
-
     for (let i = 0; i < data.length; i++) {
+      console.log("processing id: ", data[i].id);
       const streamToDecrypt = data[i].streamID;
 
       if (data[i].toAddr.toLowerCase() == selectedWalletAddress.toLowerCase()) {
@@ -140,9 +133,7 @@ function updateChatData() {
         //   console.log('$$$kl - read receipts is not checked, going rogue')
         // }
       } //print sent messages
-
-
-      if (data[i].fromAddr.toLowerCase() == selectedWalletAddress.toLowerCase()) {
+      else if (data[i].fromAddr.toLowerCase() == selectedWalletAddress.toLowerCase()) {
         console.log('$$$kl - this is the FROM streamID youre decrypting: ', streamToDecrypt);
         addMessageSender(data[i].streamID + "\n", data[i].fromName, data[i].read, data[i].id);
       }
@@ -159,10 +150,11 @@ msgerForm.addEventListener("submit", event => {
   const msgText = msgerInput.value;
   if (!msgText) return;
   appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
-  msgerInput.value = ""; //send to REST API for storage
+  msgerInput.value = ""; //TODO: need a better way to update more incrementally.
+
+  updateChatData(); //send to REST API for storage
 
   updateStreamID(msgText);
-  botResponse();
 });
 
 function appendMessage(name, img, side, text) {
@@ -183,16 +175,15 @@ function appendMessage(name, img, side, text) {
   `;
   msgerChat.insertAdjacentHTML("beforeend", msgHTML);
   msgerChat.scrollTop += 500;
-}
-
-function botResponse() {
-  updateChatData(); // const r = random(0, BOT_MSGS.length - 1);
-  // const msgText = BOT_MSGS[r];
-  // const delay = msgText.split(" ").length * 100;
-  // setTimeout(() => {
-  //   appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
-  // }, delay);
-} // Utils
+} // function botResponse() {
+//   const r = random(0, BOT_MSGS.length - 1);
+//   const msgText = BOT_MSGS[r];
+//   const delay = msgText.split(" ").length * 100;
+//   setTimeout(() => {
+//     appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
+//   }, delay);
+// }
+// Utils
 
 
 function get(selector, root = document) {
