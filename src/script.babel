@@ -5,7 +5,8 @@ const msgerMyName = get(".msger-name");
 const msgerSendTo = get(".msger-sendto");
 const msgerSendToNickname = get(".msger-sendname");
 
-let restApiUrl = 'https://litchatrestapi.herokuapp.com/users'
+let restApiUrl = 'https://simplechatapiforus.herokuapp.com/users'
+//let restApiUrl = 'http://localhost:12345/users'
 let streamID = 'this should never work' // test data
 let selectedWalletAddress = "none"
 let loadedMsgs = []
@@ -127,7 +128,6 @@ function updateChatData(){
     //console.log("processing id: ", data[i].id)
     const streamToDecrypt = data[i].streamID
     if(data[i].toAddr.toLowerCase() == selectedWalletAddress.toLowerCase()) {
-      console.log('$$$kl - this is the TO streamID youre decrypting: ', streamToDecrypt)
       addMessageReceiver(data[i].streamID, data[i].fromName, data[i].id)
 
       //mark as read if box is checked
@@ -142,7 +142,6 @@ function updateChatData(){
     } 
     //print sent messages
     else if(data[i].fromAddr.toLowerCase() == selectedWalletAddress.toLowerCase()) {
-      console.log('$$$kl - this is the FROM streamID youre decrypting: ', streamToDecrypt)
       addMessageSender(data[i].streamID + "\n", data[i].fromName, data[i].read, data[i].id)
     }
   }

@@ -54,6 +54,7 @@ module.exports = {
   default: build,
   build,
 
+
   /*
    * $ npm run serve
    * A watch task to run a local server with auto-refreshing when files are changed
@@ -67,7 +68,8 @@ module.exports = {
     }
 
     browserSync.init({
-      server: config.distDir
+      server: config.distDir,
+      open: false
     });
 
     watch([config.srcDir + '**/*.html'], series(build, refresh));

@@ -4,7 +4,8 @@ const msgerChat = get(".msger-chat");
 const msgerMyName = get(".msger-name");
 const msgerSendTo = get(".msger-sendto");
 const msgerSendToNickname = get(".msger-sendname");
-let restApiUrl = 'https://litchatrestapi.herokuapp.com/users';
+let restApiUrl = 'https://simplechatapiforus.herokuapp.com/users'; //let restApiUrl = 'http://localhost:12345/users'
+
 let streamID = 'this should never work'; // test data
 
 let selectedWalletAddress = "none";
@@ -120,7 +121,6 @@ function updateChatData() {
       const streamToDecrypt = data[i].streamID;
 
       if (data[i].toAddr.toLowerCase() == selectedWalletAddress.toLowerCase()) {
-        console.log('$$$kl - this is the TO streamID youre decrypting: ', streamToDecrypt);
         addMessageReceiver(data[i].streamID, data[i].fromName, data[i].id); //mark as read if box is checked
         // if(document.getElementById('readReceipts').checked && data[i].read != "unsent") {
         //   console.log('$$$kl - marking READ for streamID: ', streamToDecrypt)
@@ -132,7 +132,6 @@ function updateChatData() {
         // }
       } //print sent messages
       else if (data[i].fromAddr.toLowerCase() == selectedWalletAddress.toLowerCase()) {
-        console.log('$$$kl - this is the FROM streamID youre decrypting: ', streamToDecrypt);
         addMessageSender(data[i].streamID + "\n", data[i].fromName, data[i].read, data[i].id);
       }
     }
