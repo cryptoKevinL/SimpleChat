@@ -7,7 +7,8 @@ const msgerSendToNickname = get(".msger-sendname");
 let restApiUrl = 'https://litchatrestapi.herokuapp.com/users';
 let streamID = 'this should never work'; // test data
 
-let selectedWalletAddress = "none"; // Icons made by Freepik from www.flaticon.com
+let selectedWalletAddress = "none";
+let loadedMsgs = []; // Icons made by Freepik from www.flaticon.com
 
 let BOT_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
 let PERSON_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
@@ -18,6 +19,9 @@ document.addEventListener('DOMContentLoaded', function () {
   window.ethereum.request({
     method: "eth_requestAccounts"
   });
+  const interval = setInterval(function () {
+    updateChatData();
+  }, 5000);
 });
 
 const fetchPost = data => {
@@ -71,16 +75,18 @@ const updateStreamID = resp => {
 };
 
 function addMessageReceiver(message, fromName, restApiMsgId) {
-  console.log("adding message:", message);
-
-  if (message === "FALSE") {
-    console.log("updating message: ", message);
-    message = "<MSG UNSENT>"; //signal that the sender undsent the original message by removing decryption permissions
-  } //const delay = message.split(" ").length * 100;
+  // if(message === "FALSE"){
+  //   console.log("updating message: ", message)
+  //   message = "<MSG UNSENT>" //signal that the sender undsent the original message by removing decryption permissions
+  // }
+  //const delay = message.split(" ").length * 100;
   //setTimeout(() => {
+  if (!loadedMsgs[restApiMsgId]) {
+    console.log("adding message rx:", message);
+    appendMessage(fromName, BOT_IMG, "left", message);
+    loadedMsgs[restApiMsgId] = true;
+  } //}, delay);
 
-
-  appendMessage(fromName, BOT_IMG, "left", message); //}, delay);
 }
 
 function addMessageSender(message, fromName, wasRead, restApiMsgId) {
@@ -90,7 +96,11 @@ function addMessageSender(message, fromName, wasRead, restApiMsgId) {
   //   textspan.appendChild(document.createTextNode(`${message}` + " (UNSENT) (msgId:" + `${restApiMsgId}` + ")"));
   // else
   //   textspan.appendChild(document.createTextNode(`${message}` + " (UNREAD) (msgId:" + `${restApiMsgId}` + ")"));
-  appendMessage(PERSON_NAME, PERSON_IMG, "right", message);
+  if (!loadedMsgs[restApiMsgId]) {
+    console.log("adding message sender:", message);
+    appendMessage(PERSON_NAME, PERSON_IMG, "right", message);
+    loadedMsgs[restApiMsgId] = true;
+  }
 }
 
 function updateChatData() {
@@ -103,22 +113,10 @@ function updateChatData() {
   }).then(response => response.json()) //Then with the data from the response in JSON...
   .then(data => {
     //console.log('$$$kl - GET to REST API:', data);
-    //sort by msgID - this is slow but simple for demo
-    // let sortedData = [];
-    // while(sortedData.length < data.length){
-    //   for(let i=0; i<data.length; i++){
-    //     if(data[i].id == sortedData.length+1){
-    //       sortedData.push(data[i]);
-    //       console.log("pushing id: ", data[i].id)
-    //       break;
-    //     }
-    //   }
-    // }
-    // data = sortedData;
     // @ts-ignore
     //const test = document.getElementById('sendaddr').value;
     for (let i = 0; i < data.length; i++) {
-      console.log("processing id: ", data[i].id);
+      //console.log("processing id: ", data[i].id)
       const streamToDecrypt = data[i].streamID;
 
       if (data[i].toAddr.toLowerCase() == selectedWalletAddress.toLowerCase()) {
@@ -148,13 +146,13 @@ function updateChatData() {
 msgerForm.addEventListener("submit", event => {
   event.preventDefault();
   const msgText = msgerInput.value;
-  if (!msgText) return;
-  appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
-  msgerInput.value = ""; //TODO: need a better way to update more incrementally.
+  if (!msgText) return; // appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
 
-  updateChatData(); //send to REST API for storage
+  msgerInput.value = ""; //send to REST API for storage
 
-  updateStreamID(msgText);
+  updateStreamID(msgText); //TODO: need a better way to update more incrementally.
+
+  updateChatData();
 });
 
 function appendMessage(name, img, side, text) {
