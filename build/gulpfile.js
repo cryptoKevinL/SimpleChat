@@ -69,10 +69,11 @@ module.exports = {
 
     browserSync.init({
       server: config.distDir,
+      port: 8080,
       open: false,
       ui: false
     });
-
+  
     watch([config.srcDir + '**/*.html'], series(build, refresh));
   }),
 
