@@ -12,8 +12,8 @@ let selectedWalletAddress = "none"
 let loadedMsgs = []
 
 // Icons made by Freepik from www.flaticon.com
-let BOT_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
-let PERSON_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
+let BOT_IMG = "man.png";
+let PERSON_IMG = "man1.png";
 let PERSON_NAME = "You";
 
 //start of copy from LitChat
