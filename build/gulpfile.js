@@ -71,6 +71,7 @@ module.exports = {
       server: config.distDir,
       port: 8080,
       open: false,
+      ghostMode: false,
       ui: false
     });
   
